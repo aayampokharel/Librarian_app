@@ -1,4 +1,4 @@
-module aayampokharel/the_library
+module github.com/aayampokharel/the_library
 
 go 1.21.6
 
