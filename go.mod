@@ -1,4 +1,4 @@
-module first_program/the_librarian
+module aayampokharel/the_library
 
 go 1.21.6
 
