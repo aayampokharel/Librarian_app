@@ -1,6 +1,10 @@
 import 'dart:convert';
+import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:http/http.dart' as http;
 import 'package:the_librarians/main.dart';
 
@@ -36,66 +40,100 @@ Widget textfield({
       ),
       Padding(
         padding: EdgeInsetsDirectional.fromSTEB(5, 0, 5, 0),
-        child: TextFormField(
-          readOnly: !readonly,
-          controller: controllers,
-
-          onChanged: (value) {
-            fetchBook();
-            setstates != null ? setstates(value) : print("helo");
-          },
-
-          // autofocus: true,
-          ///obscureText: false,
-          decoration: InputDecoration(
-            //hintText: 'book\'s code number',
-            hintText: hinttext,
-            enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(
-                color: Colors.blue,
-                width: 2,
-              ),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(
-                color: Colors.blue,
-                width: 2,
-              ),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            // errorBorder: UnderlineInputBorder(
-            //   borderSide: BorderSide(
-            //     color: Colors.red,
-            //     width: 2,
-            //   ),
-            //   borderRadius: BorderRadius.circular(8),
-            // ),
-            // focusedErrorBorder: UnderlineInputBorder(
-            //   borderSide: BorderSide(
-            //     color: Colors.red,
-            //     width: 2,
-            //   ),
-            //   borderRadius: BorderRadius.circular(8),
-            // ),
-            suffixIcon: icon
-                ? IconButton(
-                    onPressed: () async {
-                      await postfunction!(controllers.text);
-                      updatedateonui!(); //check if text is valid or wrong
-                    },
-                    icon: Icon(
-                      Icons.check_circle_outline_sharp,
-                      size: 35,
+        child: ClipRRect(
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Color.fromARGB(135, 141, 184, 227),
+                          Colors.blue.shade100
+                        ], // Gradient shades
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  )
-                : null,
+                  ),
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.all(3),
+                padding: EdgeInsets.all(4.0),
+                decoration: BoxDecoration(
+                  color: readonly ? Colors.transparent : Colors.grey,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: TextField(
+                  readOnly: !readonly,
+                  controller: controllers,
+
+                  onChanged: (value) {
+                    fetchBook();
+                    setstates != null ? setstates(value) : null;
+                  },
+
+                  // autofocus: true,
+                  ///obscureText: false,
+                  decoration: InputDecoration(
+                    //hintText: 'book\'s code number',
+                    hintText: hinttext,
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Color.fromRGBO(56, 122, 177, 1),
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        color: const Color.fromARGB(255, 56, 122, 177),
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    // errorBorder: UnderlineInputBorder(
+                    //   borderSide: BorderSide(
+                    //     color: Colors.red,
+                    //     width: 2,
+                    //   ),
+                    //   borderRadius: BorderRadius.circular(8),
+                    // ),
+                    // focusedErrorBorder: UnderlineInputBorder(
+                    //   borderSide: BorderSide(
+                    //     color: Colors.red,
+                    //     width: 2,
+                    //   ),
+                    //   borderRadius: BorderRadius.circular(8),
+                    // ),
+                    suffixIcon: icon
+                        ? IconButton(
+                            onPressed: () async {
+                              await postfunction!(controllers.text);
+                              updatedateonui!(); //check if text is valid or wrong
+                            },
+                            icon: Icon(
+                              Icons.check_circle_outline_sharp,
+                              size: 35,
+                            ),
+                          )
+                        : null,
+                  ),
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0,
+                  ),
+                  //validator: _model.textController2Validator.asValidator(context),
+                ),
+              ),
+            ],
           ),
-          style: TextStyle(
-            fontFamily: 'Inter',
-            letterSpacing: 0,
-          ),
-          //validator: _model.textController2Validator.asValidator(context),
         ),
       ),
     ],
@@ -103,14 +141,8 @@ Widget textfield({
 }
 
 Future<List<String>> fetchBook() async {
-  print("inside fetchbook");
   final response = await http.get(Uri.parse("http://localhost:8080/get"));
 
-  if (response.statusCode == 200) {
-    print("hello dev");
-  } else {
-    print("123312231232");
-  }
   List<dynamic> dartobj = jsonDecode(response.body);
   List<String> stringdartobj = [];
   for (int i = 0; i < dartobj.length; i++) {

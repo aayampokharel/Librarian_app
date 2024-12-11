@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:the_librarians/animation.dart';
 import 'package:the_librarians/return.dart';
 import 'package:the_librarians/text_field.dart';
 import 'package:http/http.dart' as http;
@@ -17,12 +19,10 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    // TextEditingController controller1 = TextEditingController();
-
     return MaterialApp(
         // initialRoute: "/",
         routes: {
-          //'/': (context) => MyApp(),
+          //   '/': (context) => MyApp(),
           '/ReturnBook': (context) => ReturnBook(),
         },
         debugShowCheckedModeBanner: false,
@@ -48,14 +48,20 @@ class book_return extends StatefulWidget {
   State<book_return> createState() => _book_returnState();
 }
 
-class _book_returnState extends State<book_return> {
+class _book_returnState extends State<book_return>
+    with TickerProviderStateMixin {
+  late AnimationController _controller;
+  late AnimationController _controller2;
+  late Animation _tween;
+  late Animation _tweening;
   TextEditingController controller1 = TextEditingController();
   TextEditingController controller2 = TextEditingController();
   TextEditingController controller3 = TextEditingController();
   TextEditingController controller4 = TextEditingController();
   TextEditingController controller5 = TextEditingController();
   TextEditingController controller6 = TextEditingController();
-
+  var count = 0;
+  Color? clrValue = Colors.white;
   void clearallcontrollers() {
     controller1.clear();
     controller2.clear();
@@ -63,6 +69,18 @@ class _book_returnState extends State<book_return> {
     controller4.clear();
     controller5.clear();
     controller6.clear();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    set_sort().then((value) => db_list = value);
+    _controller =
+        AnimationController(vsync: this, duration: Duration(seconds: 1));
+    // _controller2 =
+    //     AnimationController(vsync: this, duration: Duration(seconds: 1));
+    // _tween = new Tween<double>(begin: 0, end: 100).animate(_controller);
+    // _tweening = new Tween<double>(begin: 0, end: 100).animate(_controller2);
   }
 
   void updatedateonui_onpressed() {
@@ -96,7 +114,6 @@ class _book_returnState extends State<book_return> {
   Future<void> postfunction(String bookname) async {
     var data = json.encode(bookname);
     Map<String, dynamic>? decodedmap;
-    print("💦\n\n\n");
 
     var response = await http.post(Uri.parse("http://localhost:8080/getother"),
         body: data);
@@ -117,12 +134,6 @@ class _book_returnState extends State<book_return> {
   List<String> sorted = [" "];
   List<String> db_list = ["data not found"];
 
-  void initState() {
-    super.initState();
-
-    set_sort().then((value) => db_list = value);
-  }
-
   Future<List<String>> set_sort() async {
 //List fetchedlist= await fetchBook();
     print("======================\n\n");
@@ -136,12 +147,21 @@ class _book_returnState extends State<book_return> {
     setState(() {
       //fetchBook();
       controller1.text;
+
       sorted = db_list
           .where((element) =>
               element.toString().toLowerCase().contains(value.toLowerCase()))
           .toList();
-      if (value == "") sorted = [" "];
-      if (sorted.isEmpty) sorted = ["Book not found"];
+      if (value == "") {
+        count = 0;
+        sorted = [" "];
+      } else {
+        count = 1;
+      }
+      if (sorted.isEmpty) {
+        count = 0;
+        sorted = [""];
+      }
     });
   }
 
@@ -153,6 +173,14 @@ class _book_returnState extends State<book_return> {
     } else {
       return Text("${sorted[index]}");
     }
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _controller.dispose();
+    _controller2.dispose();
   }
 
   @override
@@ -186,36 +214,18 @@ class _book_returnState extends State<book_return> {
               ),
         ),
         centerTitle: true,
-        elevation: 2,
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(5.0, 5.0, 0.0, 15.0),
+                padding: const EdgeInsets.fromLTRB(2.0, 0.0, 0.0, 15.0),
                 child: Row(
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    Column(mainAxisSize: MainAxisSize.max, children: [
-                      Text(
-                        'Lend Book',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          letterSpacing: 0,
-                        ),
-                      ),
-                      AnimatedContainer(
-                        width: 70,
-                        duration: Duration(seconds: 1),
-                        curve: Curves.easeInOut,
-                        child: Divider(
-                          thickness: 3,
-                          color: Color(0xFF256EBA),
-                        ),
-                      ),
-                    ]),
+                    AnimationAppBar("Lend Book", null, currentTab: true),
                     SizedBox(
                       width: 20,
                       child: VerticalDivider(
@@ -223,27 +233,8 @@ class _book_returnState extends State<book_return> {
                         color: Colors.white,
                       ),
                     ),
-                    Column(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Text(
-                          'Return Book',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            letterSpacing: 0,
-                          ),
-                        ),
-                        AnimatedContainer(
-                          width: 70,
-                          duration: Duration(seconds: 1),
-                          curve: Curves.easeInOut,
-                          child: Divider(
-                            thickness: 3,
-                            color: Color(0xFF256EBA),
-                          ),
-                        ),
-                      ],
-                    ),
+                    AnimationAppBar("Return Book", "/ReturnBook",
+                        currentTab: false),
                   ],
                 ),
               ),
@@ -256,18 +247,48 @@ class _book_returnState extends State<book_return> {
                   setstates: setstate_check,
                   postfunction: postfunction,
                   updatedateonui: updatedateonui_onpressed),
-              SizedBox(height: 10),
-              SizedBox(
-                height: 60,
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: clrValue,
+                ),
+                height: count == 0 ? 0 : 60,
                 child: ListView.builder(
                   itemCount: 1,
                   itemBuilder: (context, index) {
-                    return ListTile(
-                      title: list(index),
-                      onTap: () {
-                        controller1.text = ("${sorted[index]}");
-                      },
-                    );
+                    if (count == 1) {
+                      return MouseRegion(
+                        onEnter: (event) {
+                          setState(() {
+                            clrValue = Colors.grey[300];
+                          });
+                        },
+                        onExit: (e) {
+                          setState(() {
+                            clrValue = Colors.white;
+                          });
+                        },
+                        child: InkWell(
+                          onTap: () {
+                            controller1.text = ("${sorted[index]}");
+                          },
+                          borderRadius: BorderRadius.circular(
+                              10), // Matches card's border radius
+                          child: ListTile(
+                            title: Text(
+                              "${sorted[index]}",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            trailing: Icon(Icons.arrow_forward_ios,
+                                size: 16,
+                                color: Colors.grey), // Adds a trailing arrow
+                          ),
+                        ),
+                      );
+                    }
                   },
                 ),
               ),
@@ -301,7 +322,9 @@ class _book_returnState extends State<book_return> {
                   hinttext: " expiry date",
                   icon: false,
                   readonly: false),
-              // Generated code for this Button Widget...
+              const SizedBox(
+                height: 40,
+              ),
               Container(
                   // padding: EdgeInsetsDirectional.fromSTEB(24, 0, 24, 0),
                   width: 120,
@@ -313,6 +336,35 @@ class _book_returnState extends State<book_return> {
                   child: TextButton(
                     onPressed: () async {
                       await UpdateDateAndBool_OnPressed();
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Center(
+                              child: Text("Done!"),
+                            ),
+                            content: SizedBox(
+                              height: 100,
+                              width: 100,
+                              child: Center(
+                                child: Icon(
+                                  Icons.check_circle_outline,
+                                  size: 100,
+                                ),
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context)
+                                      .pop(); // Close the dialog
+                                },
+                                child: Text('OK'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
                       //clearallcontrollers();
                     },
                     style: ButtonStyle(

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:the_librarians/animation.dart';
 import 'text_field.dart';
 import 'package:http/http.dart' as http;
 
@@ -121,32 +122,15 @@ class _ReturnBookState extends State<ReturnBook> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.fromLTRB(10.0, 0, 10, 10),
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(5.0, 5.0, 0.0, 15.0),
+                padding: const EdgeInsets.fromLTRB(5.0, 0.0, 0.0, 15.0),
                 child: Row(
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    Column(mainAxisSize: MainAxisSize.max, children: [
-                      Text(
-                        'Lend Book',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          letterSpacing: 0,
-                        ),
-                      ),
-                      AnimatedContainer(
-                        width: 70,
-                        duration: Duration(seconds: 1),
-                        curve: Curves.easeInOut,
-                        child: Divider(
-                          thickness: 3,
-                          color: Color(0xFF256EBA),
-                        ),
-                      ),
-                    ]),
+                    AnimationAppBar("Lend Book", null),
                     SizedBox(
                       width: 20,
                       child: VerticalDivider(
@@ -154,54 +138,26 @@ class _ReturnBookState extends State<ReturnBook> {
                         color: Colors.white,
                       ),
                     ),
-                    Column(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Text(
-                          'Return Book',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            letterSpacing: 0,
-                          ),
-                        ),
-                        AnimatedContainer(
-                          width: 70,
-                          duration: Duration(seconds: 1),
-                          curve: Curves.easeInOut,
-                          child: Divider(
-                            thickness: 3,
-                            color: Color(0xFF256EBA),
-                          ),
-                        ),
-                      ],
-                    ),
+                    AnimationAppBar("Return Book", "/ReturnBook",
+                        currentTab: true)
                   ],
                 ),
               ),
               textfield(
-                  text: "Search by book name",
+                  text: "Search by book ID",
                   controllers: bookcode1,
-                  hinttext: "book's name",
+                  hinttext: "book's ID",
                   icon: true,
                   readonly: true,
                   // setstates: setstate_check,
                   postfunction: postfunction_forreturn,
                   updatedateonui: updateonui_forreturn),
-              SizedBox(height: 10),
-              SizedBox(
-                height: 60,
-                // child: ListView.builder(
-                //   itemCount: 1,
-                //   itemBuilder: (context, index) {
-                // return ListTile(
-                //   title: list(index),
-                //   onTap: () {
-                //     bookcode1.text = ("${sorted[index]}");
-                //   },
-                // );
-                //   },
-                // ),
+              Divider(
+                color: Colors.grey[300],
+                thickness: 3,
               ),
+              SizedBox(height: 25),
+
               textfield(
                   text: "Fine(if any)",
                   controllers: fine2,
