@@ -1,11 +1,8 @@
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:the_librarians/return.dart';
-import 'text_field.dart';
+import 'package:the_librarians/text_field.dart';
 import 'package:http/http.dart' as http;
 
 void main() {
@@ -99,6 +96,8 @@ class _book_returnState extends State<book_return> {
   Future<void> postfunction(String bookname) async {
     var data = json.encode(bookname);
     Map<String, dynamic>? decodedmap;
+    print("💦\n\n\n");
+
     var response = await http.post(Uri.parse("http://localhost:8080/getother"),
         body: data);
 
@@ -109,7 +108,6 @@ class _book_returnState extends State<book_return> {
         controller3.text = decodedmap!["BookAuthor"] ?? "";
         controller2.text = decodedmap["BookId"].toString();
       });
-      //print(responsestring.BookId);
     } else {
       print(
           "nonononononononononnononnnnoon"); //! i dont care here to check if paramter is equal to reknowned book or not as hoina bhane there wont be any such book name in db and wont returnn status 200
